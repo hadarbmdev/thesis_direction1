@@ -11,8 +11,9 @@ def main():
     config()
     msg = "hello thesis"
     print(msg)
+    colsPerWaves = VarColsPerWaveFactory()
     motherOrganismicFaith = MotherVar(
-        SubjectsVarsEnum.OrganismicFaith.value, VarColsPerWaveFactory.getColsForWaves(SubjectsVarsEnum.OrganismicFaith.name))
+        SubjectsVarsEnum.OrganismicFaith.value, colsPerWaves.getColsForWaves(SubjectsVarsEnum.OrganismicFaith.name))
 
 
 main()

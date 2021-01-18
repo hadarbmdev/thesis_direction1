@@ -16,10 +16,11 @@ class SubjectVar():
     def __init__(self, label, all_cols):
         self.label = label
         self.df = pandas.DataFrame()
-        print(all_cols)
+        print('[SubjectVar] ' + str(all_cols))
+        self.waves = all_cols['waves']
         self.cols = all_cols['cols']
         self.reversed_cols = all_cols['reversed_cols']
-        print(self.getLabel())
+        print('[SubjectVar] ' + self.getLabel())
         logging.debug("calculating " + self.getSubjectPrefix() +
                       " - " + self.getLabel())
         self.compute()
@@ -48,19 +49,23 @@ class SubjectVar():
     @property
     @abstractmethod
     def getWaves(self):
-        return []
+        return self.waves
 
     def compute(self):
         self.computeVarAcrossRelevantWaves()
 
     def computeVarAcrossRelevantWaves(self):
         for waveNumber in self.getWaves:
-            waveDf = CreateDataSetUtils.loadWaveData(waveNumber)
+            waveNumberStr = str(waveNumber)
+            logging.debug('computing wave number '+str(waveNumberStr))
+            waveDf = CreateDataSetUtils.loadWaveData(waveNumberStr)
             waveDf = self.recodeReversedColsInPlace(
-                waveDf, self.reversed_cols[waveNumber])
-            groupBy = self.cols[waveNumber] + self.reversed_cols[waveNumber]
+                waveDf, self.reversed_cols[str(waveNumberStr)])
+            groupBy = self.cols[waveNumberStr] + \
+                self.reversed_cols[waveNumberStr]
             logging.debug('grouping by cols: ' + str(groupBy))
             waveDf.groupby(groupBy, as_index=False).mean()
+            print(waveDf)
 
     def recodeReversedColsInPlace(self, df, cols):
         if (len(cols) > 0):

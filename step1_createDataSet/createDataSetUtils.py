@@ -1,6 +1,7 @@
 import pandas as pd
 import logging
 import pathlib
+import json
 
 
 class CreateDataSetUtils:
@@ -12,9 +13,20 @@ class CreateDataSetUtils:
 
     @staticmethod
     def loadWaveData(waveNumber):
-        return CreateDataSetUtils.loadRawDataIntoDf(str(pathlib.Path().absolute()) + '\\step1_createDataSet\\rawData\\wave' + str(waveNumber) + '.csv')
+        path = str(pathlib.Path().absolute()) + '\\step1_createDataSet\\rawData\\wave' + \
+            str(waveNumber) + '.csv'
+        logging.debug('Loading wave data from ' + path)
+        return CreateDataSetUtils.loadRawDataIntoDf(path)
 
-    @staticmethod
+    @ staticmethod
+    def loadVarsColsPerWaveMapping():
+        path = str(pathlib.Path().absolute()) + \
+            '\\step1_createDataSet\\rawData\\varsColsPerWaveMapping.json'
+        with open(path) as json_file:
+            data = json.load(json_file)
+        return data
+
+    @ staticmethod
     def reverseLikhert(ans):
         switcher = {
             1: 7,
