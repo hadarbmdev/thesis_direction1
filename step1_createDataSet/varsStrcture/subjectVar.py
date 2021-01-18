@@ -1,5 +1,9 @@
 from abc import ABCMeta, abstractmethod
+from os import PathLike
+import pathlib
 from types import resolve_bases
+
+from pandas.core.indexes.base import Index
 from step1_createDataSet.createDataSetUtils import CreateDataSetUtils
 import pandas
 import logging
@@ -8,8 +12,9 @@ import logging
 class SubjectVar():
     __metaclass__ = ABCMeta
 
-    def __init__(self, label, all_cols):
+    def __init__(self, label, all_cols, indexColName):
         self.label = label
+        self.indexColName = indexColName
         self.df = pandas.DataFrame()
         print('[SubjectVar] ' + str(all_cols))
         self.waves = all_cols['waves']
@@ -33,6 +38,10 @@ class SubjectVar():
         return self.label
 
     @abstractmethod
+    def getIndexColName(self):
+        return self.indexColName
+
+    @abstractmethod
     def getSubjectPrefix(self):
         pass
 
@@ -52,15 +61,40 @@ class SubjectVar():
     def computeVarAcrossRelevantWaves(self):
         for waveNumber in self.getWaves:
             waveNumberStr = str(waveNumber)
-            logging.debug('computing wave number '+str(waveNumberStr))
-            waveDf = CreateDataSetUtils.loadWaveData(waveNumberStr)
-            waveDf = self.recodeReversedColsInPlace(
-                waveDf, self.reversed_cols[str(waveNumberStr)])
-            groupBy = self.cols[waveNumberStr] + \
-                self.reversed_cols[waveNumberStr]
-            logging.debug('grouping by cols: ' + str(groupBy))
-            waveDf.groupby(groupBy, as_index=False).mean()
-            print(waveDf)
+            meanVarName = self.getLabel() + '_wave' + waveNumberStr
+            mainVarDf = self.getDfForThisVarOnWave(waveNumberStr, meanVarName)
+
+    # returns a DF that is based only on the relevant columns for this main var
+    def getDfForThisVarOnWave(self, waveNumberStr, meanVarName):
+        logging.debug('computing wave number '+str(waveNumberStr))
+        outputFileName = meanVarName + ".csv"
+        outputFilePath = str(pathlib.Path().absolute()) + \
+            '\\step1_createDataSet\\output\\'
+        waveDf = CreateDataSetUtils.loadWaveData(waveNumberStr)
+        waveDf = self.recodeReversedColsInPlace(
+            waveDf, self.reversed_cols[str(waveNumberStr)])
+
+        # filter only this var cols to a new fresh data set of this var for this wave
+        mainVarDf = waveDf.filter(self.cols[waveNumberStr] +
+                                  self.reversed_cols[waveNumberStr], axis=1)
+
+        # mainVarDf.to_csv(outputFilePath + 'base_' +
+        #  outputFileName, index=False)
+
+        check = pandas.read_csv(outputFilePath + 'base_' +
+                                outputFileName)
+        print(check)
+        print(check.mean(axis=1))
+        # Add mean column for this var (like SPSS compute across these var sub - variables)
+        mainVarDf[meanVarName] = mainVarDf.mean(axis=1, skipna=True)
+        print(mainVarDf[meanVarName])
+
+        # add the index column, after we already calculated mean on all other columns
+        mainVarDf.insert(0, self.getIndexColName(),
+                         waveDf[self.getIndexColName()])
+
+        mainVarDf.to_csv(outputFilePath + outputFileName, index=False)
+        return mainVarDf
 
     def recodeReversedColsInPlace(self, df, cols):
         if (len(cols) > 0):
@@ -79,8 +113,8 @@ class SubjectVar():
 class MotherVar(SubjectVar):
     __metaclass__ = ABCMeta
 
-    def __init__(self, label, all_cols):
-        super(MotherVar, self).__init__(label, all_cols)
+    def __init__(self, label, all_cols, indexColName):
+        super(MotherVar, self).__init__(label, all_cols, indexColName)
 
     def isMother(self):
         return True
@@ -96,8 +130,8 @@ class ChildVar(SubjectVar):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, label, all_cols):
-        super(ChildVar, self).__init__(label, all_cols)
+    def __init__(self, label, all_cols, indexColName):
+        super(ChildVar, self).__init__(label, all_cols, indexColName)
 
     def isMother(self):
         return False

@@ -19,6 +19,9 @@ def config():
     logging.info('Readind Raw Data Folder from :' +
                  CreateDataSetUtils.rawDataFolder)
 
+    CreateDataSetUtils.indexColName = os.getenv("INDEX_COL_NAME") if os.getenv(
+        "INDEX_COL_NAME") != '' else 'family'
+
 
 def createDatasetForMainVars(colsPerWaves):
     fullMapping = colsPerWaves.getAllVarsMapping()
@@ -27,11 +30,11 @@ def createDatasetForMainVars(colsPerWaves):
         logging.info('Creating dataset for main var: ' + str(subjectVarKey))
         if subjectVar["type"] == "Mother":
             MotherVar(
-                subjectVarKey, colsPerWaves.getColsForWaves(subjectVarKey))
+                subjectVarKey, colsPerWaves.getColsForWaves(subjectVarKey), CreateDataSetUtils.getIndexColName())
 
         if subjectVar["type"] == "Child":
             ChildVar(
-                subjectVarKey, colsPerWaves.getColsForWaves(subjectVarKey))
+                subjectVarKey, colsPerWaves.getColsForWaves(subjectVarKey), CreateDataSetUtils.getIndexColName())
 
 
 def main():

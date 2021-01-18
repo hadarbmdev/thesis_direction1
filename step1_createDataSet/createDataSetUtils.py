@@ -1,11 +1,15 @@
 import pandas as pd
 import logging
-import pathlib
 import json
 
 
 class CreateDataSetUtils:
     rawDataFolder = ''
+    indexColName = ''
+
+    @staticmethod
+    def getIndexColName():
+        return CreateDataSetUtils.indexColName
 
     @staticmethod
     def getRawDataFolder():
