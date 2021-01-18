@@ -1,19 +1,44 @@
 import logging
+import pathlib
+import os
+from step1_createDataSet.createDataSetUtils import CreateDataSetUtils
 from step1_createDataSet.varsColsPerWaveFactory import VarColsPerWaveFactory
-from step1_createDataSet.varsStrcture.subjectVar import MotherVar, SubjectsVarsEnum
+from step1_createDataSet.varsStrcture.subjectVar import ChildVar, MotherVar
+from dotenv import load_dotenv
 
 
 def config():
     logging.basicConfig(level=logging.DEBUG)
+    load_dotenv()
+    logging.debug('os.getenv("RAW_DATA_FOLDER") =' +
+                  str(os.getenv("RAW_DATA_FOLDER")))
+    rawDataFolderPath = os.getenv("RAW_DATA_FOLDER") if os.getenv(
+        "RAW_DATA_FOLDER") != '' else '\\step1_createDataSet\\rawData\\'
+    CreateDataSetUtils.rawDataFolder = str(
+        pathlib.Path().absolute()) + rawDataFolderPath
+    logging.info('Readind Raw Data Folder from :' +
+                 CreateDataSetUtils.rawDataFolder)
+
+
+def createDatasetForMainVars(colsPerWaves):
+    fullMapping = colsPerWaves.getAllVarsMapping()
+    for subjectVarKey in fullMapping:
+        subjectVar = fullMapping[subjectVarKey]
+        logging.info('Creating dataset for main var: ' + str(subjectVarKey))
+        if subjectVar["type"] == "Mother":
+            MotherVar(
+                subjectVarKey, colsPerWaves.getColsForWaves(subjectVarKey))
+
+        if subjectVar["type"] == "Child":
+            ChildVar(
+                subjectVarKey, colsPerWaves.getColsForWaves(subjectVarKey))
 
 
 def main():
     config()
     msg = "hello thesis"
     print(msg)
-    colsPerWaves = VarColsPerWaveFactory()
-    motherOrganismicFaith = MotherVar(
-        SubjectsVarsEnum.OrganismicFaith.value, colsPerWaves.getColsForWaves(SubjectsVarsEnum.OrganismicFaith.name))
+    createDatasetForMainVars(VarColsPerWaveFactory())
 
 
 main()

@@ -1,6 +1,5 @@
 import logging
 from step1_createDataSet.createDataSetUtils import CreateDataSetUtils
-from step1_createDataSet.varsStrcture.subjectVar import SubjectsVarsEnum
 
 
 class VarColsPerWaveFactory():
@@ -28,6 +27,9 @@ class VarColsPerWaveFactory():
             6: [],
             7: [],
         }}
+
+    def getAllVarsMapping(self):
+        return self.varsColsPerWaveMapping
 
     def getColsForWaves(self, varName):
         return self.varsColsPerWaveMapping[varName]

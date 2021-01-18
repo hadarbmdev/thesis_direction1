@@ -1,0 +1,23 @@
+{"SupportInFreedom": {
+    "type":"Mother",
+    "waves": [1],
+    "cols": {
+        "1": ["SupportInFreedom.Q1", "SupportInFreedom.Q4", "SupportInFreedom.Q5"],
+        "2": [],
+        "3": [],
+        "4": [],
+        "5": [],
+        "6": [],
+        "7": []
+    },
+    "reversed_cols": {
+        "1": [],
+        "2": ["v3","SupportInFreedom.Q4","SupportInFreedom.Q7"],
+        "3": [],
+        "4": [],
+        "5": [],
+        "6": [],
+        "7": []
+    }
+}
+}

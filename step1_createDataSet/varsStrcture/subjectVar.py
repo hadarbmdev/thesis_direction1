@@ -3,11 +3,6 @@ from types import resolve_bases
 from step1_createDataSet.createDataSetUtils import CreateDataSetUtils
 import pandas
 import logging
-from enum import Enum
-
-
-class SubjectsVarsEnum(Enum):
-    OrganismicFaith = "Organismic Faith"
 
 
 class SubjectVar():

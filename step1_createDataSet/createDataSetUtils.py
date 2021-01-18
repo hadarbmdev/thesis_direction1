@@ -5,23 +5,27 @@ import json
 
 
 class CreateDataSetUtils:
+    rawDataFolder = ''
+
+    @staticmethod
+    def getRawDataFolder():
+        return CreateDataSetUtils.rawDataFolder
+
     @staticmethod
     def loadRawDataIntoDf(rawDataFileLocation):
-        logging.debug(
-            'loading raw data from ' + rawDataFileLocation)
         return pd.read_csv(rawDataFileLocation)
 
     @staticmethod
     def loadWaveData(waveNumber):
-        path = str(pathlib.Path().absolute()) + '\\step1_createDataSet\\rawData\\wave' + \
+        path = CreateDataSetUtils.getRawDataFolder() + '\\wave' + \
             str(waveNumber) + '.csv'
         logging.debug('Loading wave data from ' + path)
         return CreateDataSetUtils.loadRawDataIntoDf(path)
 
     @ staticmethod
     def loadVarsColsPerWaveMapping():
-        path = str(pathlib.Path().absolute()) + \
-            '\\step1_createDataSet\\rawData\\varsColsPerWaveMapping.json'
+        path = CreateDataSetUtils.getRawDataFolder() + \
+            '\\varsColsPerWaveMapping.json'
         with open(path) as json_file:
             data = json.load(json_file)
         return data
