@@ -2,6 +2,7 @@
 # Thesis research data
 rawData/*
 step1_createDataSet/rawData/*
+step1_createDataSet/output/*
 # ******************************************************************************************************************************************************
 # Byte-compiled / optimized / DLL files
 __pycache__/
