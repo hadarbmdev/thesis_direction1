@@ -59,10 +59,13 @@ class SubjectVar():
         self.computeVarAcrossRelevantWaves()
 
     def computeVarAcrossRelevantWaves(self):
+        mainVarPerWave = pandas.DataFrame()
         for waveNumber in self.getWaves:
             waveNumberStr = str(waveNumber)
             meanVarName = self.getLabel() + '_wave' + waveNumberStr
             mainVarDf = self.getDfForThisVarOnWave(waveNumberStr, meanVarName)
+            mainVarPerWave[meanVarName] = mainVarDf[meanVarName]
+        print(mainVarPerWave)
 
     # returns a DF that is based only on the relevant columns for this main var
     def getDfForThisVarOnWave(self, waveNumberStr, meanVarName):
@@ -78,16 +81,15 @@ class SubjectVar():
         mainVarDf = waveDf.filter(self.cols[waveNumberStr] +
                                   self.reversed_cols[waveNumberStr], axis=1)
 
-        # mainVarDf.to_csv(outputFilePath + 'base_' +
-        #  outputFileName, index=False)
+        for column in mainVarDf:
+            mainVarDf[column] = pandas.to_numeric(
+                mainVarDf[column], errors='coerce')
 
-        check = pandas.read_csv(outputFilePath + 'base_' +
-                                outputFileName)
-        print(check)
-        print(check.mean(axis=1))
+        mainVarDf.to_csv(outputFilePath + 'base_' +
+                         outputFileName, index=False)
+
         # Add mean column for this var (like SPSS compute across these var sub - variables)
         mainVarDf[meanVarName] = mainVarDf.mean(axis=1, skipna=True)
-        print(mainVarDf[meanVarName])
 
         # add the index column, after we already calculated mean on all other columns
         mainVarDf.insert(0, self.getIndexColName(),
