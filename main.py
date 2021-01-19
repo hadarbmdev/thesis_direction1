@@ -1,3 +1,4 @@
+import pandas
 import logging
 import pathlib
 import os
@@ -24,17 +25,24 @@ def config():
 
 
 def createDatasetForMainVars(colsPerWaves):
+    dfMainVars = pandas.DataFrame()
     fullMapping = colsPerWaves.getAllVarsMapping()
     for subjectVarKey in fullMapping:
         subjectVar = fullMapping[subjectVarKey]
         logging.info('Creating dataset for main var: ' + str(subjectVarKey))
+        mainVar = pandas.Series()
         if subjectVar["type"] == "Mother":
-            MotherVar(
+            mainVar = MotherVar(
                 subjectVarKey, colsPerWaves.getColsForWaves(subjectVarKey), CreateDataSetUtils.getIndexColName())
 
         if subjectVar["type"] == "Child":
-            ChildVar(
+            mainVar = ChildVar(
                 subjectVarKey, colsPerWaves.getColsForWaves(subjectVarKey), CreateDataSetUtils.getIndexColName())
+
+        dfMainVars[subjectVarKey] = mainVar.mean
+        dfMainVars.to_csv(str(pathlib.Path().absolute()) +
+                          '\\step1_createDataSet\\output\\MeansOfMainVarsAcrossAllWaves.csv')
+    print(dfMainVars)
 
 
 def main():

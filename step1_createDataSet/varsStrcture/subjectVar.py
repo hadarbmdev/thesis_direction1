@@ -23,7 +23,7 @@ class SubjectVar():
         print('[SubjectVar] ' + self.getLabel())
         logging.debug("calculating " + self.getSubjectPrefix() +
                       " - " + self.getLabel())
-        self.compute()
+        self.mean = self.compute()
 
     @abstractmethod
     def isMother(self):
@@ -56,7 +56,7 @@ class SubjectVar():
         return self.waves
 
     def compute(self):
-        self.computeVarAcrossRelevantWaves()
+        return self.computeVarAcrossRelevantWaves()
 
     def computeVarAcrossRelevantWaves(self):
         mainVarPerWave = pandas.DataFrame()
@@ -65,7 +65,7 @@ class SubjectVar():
             meanVarName = self.getLabel() + '_wave' + waveNumberStr
             mainVarDf = self.getDfForThisVarOnWave(waveNumberStr, meanVarName)
             mainVarPerWave[meanVarName] = mainVarDf[meanVarName]
-        print(mainVarPerWave)
+        return mainVarPerWave.mean(axis=1)
 
     # returns a DF that is based only on the relevant columns for this main var
     def getDfForThisVarOnWave(self, waveNumberStr, meanVarName):
@@ -100,15 +100,16 @@ class SubjectVar():
 
     def recodeReversedColsInPlace(self, df, cols):
         if (len(cols) > 0):
-            logging.debug("recoding cols " + str(cols))
+            # logging.debug("recoding cols " + str(cols))
             for col in cols:
-                logging.debug(col+'_R, before: ' + str(df[col+'_R']))
+                # logging.debug(col+'_R, before: ' + str(df[col]))
+
                 df[col +
-                    '_R'] = df[col].apply(CreateDataSetUtils.reverseLikhert())
-                logging.debug(col+'_R, after: ' + str(df[col+'_R']))
+                    '_R'] = df[col].apply(CreateDataSetUtils.reverseLikhert)
+                # logging.debug(col+'_R, after: ' + str(df[col+'_R']))
                 df[col] = df[col+'_R']
                 df.drop(col+'_R', axis=1, inplace=True)
-                logging.debug(col + ' final : ' + str(df[col+'_R']))
+                # logging.debug(col + ' final : ' + str(df[col]))
         return df
 
 

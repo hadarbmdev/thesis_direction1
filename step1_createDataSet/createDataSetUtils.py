@@ -1,3 +1,4 @@
+from numpy.core.numeric import NaN
 import pandas as pd
 import logging
 import json
@@ -36,6 +37,9 @@ class CreateDataSetUtils:
 
     @ staticmethod
     def reverseLikhert(ans):
+        if ans.strip() == '':
+            return NaN
+        ansInt = int(ans)
         switcher = {
             1: 7,
             2: 6,
@@ -45,4 +49,4 @@ class CreateDataSetUtils:
             6: 2,
             7: 1,
         }
-        return switcher.get(ans, -1)
+        return switcher.get(ansInt, NaN)
