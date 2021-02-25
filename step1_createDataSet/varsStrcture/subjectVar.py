@@ -1,5 +1,4 @@
 from abc import ABCMeta, abstractmethod
-from os import PathLike
 import pathlib
 from types import resolve_bases
 
@@ -20,6 +19,8 @@ class SubjectVar():
         self.waves = all_cols['waves']
         self.cols = all_cols['cols']
         self.reversed_cols = all_cols['reversed_cols']
+        self.varType = all_cols['varType']
+        self.calcBasedOnVars = all_cols['calcBasedOnVars']
         print('[SubjectVar] ' + self.getLabel())
         logging.debug("calculating " + self.getSubjectPrefix() +
                       " - " + self.getLabel())
@@ -27,6 +28,10 @@ class SubjectVar():
 
     @abstractmethod
     def isMother(self):
+        pass
+
+    @abstractmethod
+    def isFather(self):
         pass
 
     @abstractmethod
@@ -56,7 +61,25 @@ class SubjectVar():
         return self.waves
 
     def compute(self):
-        return self.computeVarAcrossRelevantWaves()
+        if (self.varType == 'data'):
+            return self.computeVarAcrossRelevantWaves()
+        else:
+            return self.computeVarByOtherVars()
+
+    def computeVarByOtherVars(self):
+        mainVarPerSubVar = pandas.DataFrame()
+        varsMeansDf = CreateDataSetUtils.loadCurrentVarsMeansData()
+        # mainVarPerSubVar.insert(0, self.getIndexColName(),
+        #                         varsMeansDf[self.getIndexColName()])
+
+        for subVar in self.calcBasedOnVars:
+            if not (subVar in varsMeansDf):
+                print('WARNING! Asking to compute a variable that doesnt exists')
+            else:
+                mainVarPerSubVar[subVar] = varsMeansDf[subVar]
+        print(mainVarPerSubVar)
+        mean = mainVarPerSubVar.mean(axis=1)
+        return mean
 
     def computeVarAcrossRelevantWaves(self):
         mainVarPerWave = pandas.DataFrame()
@@ -119,6 +142,9 @@ class MotherVar(SubjectVar):
     def __init__(self, label, all_cols, indexColName):
         super(MotherVar, self).__init__(label, all_cols, indexColName)
 
+    def isFather(self):
+        return False
+
     def isMother(self):
         return True
 
@@ -129,12 +155,34 @@ class MotherVar(SubjectVar):
         return 'Mother'
 
 
+class FatherVar(SubjectVar):
+    __metaclass__ = ABCMeta
+
+    def __init__(self, label, all_cols, indexColName):
+        super(FatherVar, self).__init__(label, all_cols, indexColName)
+
+    def isFather(self):
+        return True
+
+    def isMother(self):
+        return False
+
+    def isChild(self):
+        return False
+
+    def getSubjectPrefix(self):
+        return 'Father'
+
+
 class ChildVar(SubjectVar):
 
     __metaclass__ = ABCMeta
 
     def __init__(self, label, all_cols, indexColName):
         super(ChildVar, self).__init__(label, all_cols, indexColName)
+
+    def isFather(self):
+        return False
 
     def isMother(self):
         return False
